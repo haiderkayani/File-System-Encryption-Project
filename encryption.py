@@ -16,3 +16,20 @@ def encrypt_file_aes(file_path, key):
     with open(file_path +".enc",'wb') as f:
         for x in [cipher.nonce, tag, ciphertext]:
             f.write(x)
+            
+def decrypt_file_aes(file_path, key):
+    with open(file_path,'rb') as f:
+        nonce, tag, ciphertext=[f.read(x) for x in (16, 16, -1)]
+    
+    cipher=AES.new(key, AES.MODE_GCM, nonce=nonce)
+    plaintext=cipher.decrypt_and_verify(ciphertext, tag)
+    
+    with open(file_path[:-4],'wb') as f:
+        f.write(plaintext)
+
+def hash_file_sha256(file_path):
+    sha256=hashlib.sha256()
+    with open(file_path,'rb') as f:
+        while chunk:=f.read(8192):
+            sha256.update(chunk)
+    return sha256.hexdigest()
